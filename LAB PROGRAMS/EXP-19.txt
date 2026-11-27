@@ -1,0 +1,59 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report
+
+# Create bank loan dataset
+data = {
+    'Income': [25000, 30000, 50000, 60000, 20000,
+               45000, 70000, 80000, 35000, 90000],
+    'Credit_Score': [500, 550, 650, 700, 480,
+                     620, 750, 800, 580, 850],
+    'Age': [22, 25, 35, 40, 23, 32, 45, 50, 28, 55],
+    'Loan_Amount': [100000, 120000, 150000, 200000,
+                    80000, 140000, 180000, 250000,
+                    110000, 300000],
+    'Loan_Status': ['No', 'No', 'Yes', 'Yes', 'No',
+                    'Yes', 'Yes', 'Yes', 'No', 'Yes']
+}
+
+df = pd.DataFrame(data)
+
+# Separate features and target
+X = df.drop('Loan_Status', axis=1)
+y = df['Loan_Status']
+
+# Encode target
+encoder = LabelEncoder()
+y = encoder.fit_transform(y)
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Create Naive Bayes model
+model = GaussianNB()
+
+# Train model
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+print("Actual Values:", encoder.inverse_transform(y_test))
+print("Predicted Values:", encoder.inverse_transform(y_pred))
+
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+
+# Predict new loan application
+new_applicant = pd.DataFrame(
+    [[65000, 720, 38, 160000]],
+    columns=X.columns
+)
+
+prediction = model.predict(new_applicant)
+
+print("Loan Prediction:", encoder.inverse_transform(prediction)[0])
